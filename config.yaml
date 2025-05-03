@@ -1,0 +1,11 @@
+update_logs: False
+update_to_last_minute: True
+split_logs_to_games: False
+create_analysis: False
+create_monthly_plots: False
+extract_player_plot: True
+make_stats: True
+overwrite_game_logs: False
+focus_player: '76561198006728045'
+
+metrics: [list Apolo kpm,list kpm,list dpm]

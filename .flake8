@@ -1,0 +1,5 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203, W503      # matches Black’s defaults
+exclude = .git,__pycache__,build,dist,.venv
+max-complexity = 10             # optional: flag overly complex functions
