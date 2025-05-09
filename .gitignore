@@ -1,3 +1,6 @@
 .env
+*.log
+*.json
 old/
 __pycache__/
+scripts/
