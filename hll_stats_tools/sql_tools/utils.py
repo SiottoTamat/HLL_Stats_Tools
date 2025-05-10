@@ -285,5 +285,5 @@ def grab_player_plot(
         .all()
     )
 
-    kpm_by_date = {str(date): round(kpm, round_to) for date, kpm in results}
-    return kpm_by_date
+    metric_by_date = {str(date): round(metric, round_to) for date, metric in results}
+    return metric_by_date
