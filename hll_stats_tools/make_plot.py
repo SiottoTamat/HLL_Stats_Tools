@@ -1,5 +1,5 @@
 from datetime import date
-
+from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -97,6 +97,119 @@ def plot_player_data(
     plt.tight_layout()
     if namefile:
         fig.savefig(namefile, format="png", dpi=300)
+    else:
+        plt.show()
+
+
+def plot_multiple_metrics(
+    metrics_by_date: dict[str, dict[str, float]],
+    group_by: str = "W",  # 'D', 'W', 'M'
+    rolling_average: int | None = None,
+    display_rolling_average_overlay: bool = False,
+    title: str = "",
+    namefile: Path | None = None,
+    min_value: float = 0.0,
+    max_value: float = 1.75,
+):
+    """
+    Plots one or more time series (player metrics) with optional resampling and rolling average.
+
+    Parameters:
+        metrics_by_date : dict[str, dict[str, float]]
+            {metric_name: {date_str: value, ...}}
+        group_by : str
+            Time grouping: 'D', 'W', or 'M'
+        rolling_average : int | None
+            If set, apply rolling average (overlay or replace)
+        display_rolling_average_overlay : bool
+            If True, plots both raw and rolling average on same chart
+        title : str
+            Title of the plot
+        namefile : Path | None
+            If set, saves the plot; otherwise, shows it
+    """
+    if not metrics_by_date:
+        print("⚠️ No data to plot.")
+        return
+
+    # Build base DataFrame
+    df = pd.DataFrame(
+        {
+            metric: pd.Series(data).astype(float)
+            for metric, data in metrics_by_date.items()
+        }
+    )
+    df.index = pd.to_datetime(df.index)
+    df.sort_index(inplace=True)
+
+    # Resample (grouping)
+    if group_by in {"D", "W", "M"}:
+        df = df.resample(group_by).mean()
+
+    # Create plot
+    plt.style.use("ggplot")
+    fig, ax = plt.subplots(figsize=(12, 6), dpi=300)
+    ax.set_ylim(min_value, max_value)
+
+    if rolling_average and display_rolling_average_overlay:
+        # Plot raw lines first
+        for column in df.columns:
+            ax.plot(
+                df.index,
+                df[column],
+                linestyle="--",
+                linewidth=1,
+                alpha=0.6,
+                label=column,
+            )
+
+        # Add rolling averages as dashed lines
+        rolling_df = df.rolling(window=rolling_average, min_periods=1).mean()
+        for column in rolling_df.columns:
+            ax.plot(
+                rolling_df.index,
+                rolling_df[column],
+                linestyle="-",
+                linewidth=1,
+                alpha=0.6,
+                label=f"{column} (avg)",
+            )
+
+    elif rolling_average:
+        # Only show rolling average, not raw values
+        rolling_df = df.rolling(window=rolling_average, min_periods=1).mean()
+        for column in rolling_df.columns:
+            ax.plot(
+                rolling_df.index,
+                rolling_df[column],
+                linestyle="-",
+                linewidth=2,
+                label=f"{column} (avg)",
+            )
+    else:
+        # Only raw values
+        for column in df.columns:
+            ax.plot(
+                df.index,
+                df[column],
+                linestyle="--",
+                linewidth=1.5,
+                alpha=0.7,
+                label=column,
+            )
+
+    ax.set_title(title or "Player Metrics Over Time")
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Value")
+    ax.legend(title="Metric")
+    ax.grid(True)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    if namefile:
+        plt.savefig(namefile, bbox_inches="tight")
+        print(f"✅ Plot saved to: {namefile}")
+        plt.close()
     else:
         plt.show()
 
