@@ -1,15 +1,14 @@
 import json
 from datetime import date
 from pathlib import Path
+
+from hll_stats_tools.legacy_json.analysis_utils import refill_analysis_folder
+from hll_stats_tools.legacy_json.logs_utils import merge_logs_to_games
 from hll_stats_tools.legacy_json.statistics import (
     create_plots,
     pandarize_plots,
     player_plots_from_fileplot,
 )
-
-from hll_stats_tools.legacy_json.analysis_utils import refill_analysis_folder
-from hll_stats_tools.legacy_json.logs_utils import merge_logs_to_games
-
 from hll_stats_tools.utils.logger_utils import setup_logger
 
 from ..plotting.make_plot import plot_player_data

@@ -2,8 +2,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from hll_stats_tools.utils.common_utils import recuperate_date
-from hll_stats_tools.utils.common_utils import openfile
+from hll_stats_tools.utils.common_utils import openfile, recuperate_date
 
 
 def merge_logs_to_games(

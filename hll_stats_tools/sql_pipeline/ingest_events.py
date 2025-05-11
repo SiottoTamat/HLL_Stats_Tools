@@ -2,10 +2,10 @@ import json
 import os
 from datetime import datetime, timezone
 from pathlib import Path
+
 from dateutil import parser as dateutil_parser
 from dotenv import load_dotenv
-
-from sqlalchemy import create_engine, func, text, false
+from sqlalchemy import create_engine, false, func, text
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session, sessionmaker
 

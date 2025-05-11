@@ -4,9 +4,9 @@ from pathlib import Path
 
 import yaml
 from dotenv import load_dotenv
+
 from hll_stats_tools.data_acquisition.talk_to_server import download_sequential_logs
 from hll_stats_tools.utils.common_utils import openfile
-
 from hll_stats_tools.utils.logger_utils import setup_logger
 
 cfg = yaml.safe_load(Path("config.yaml").read_text())
