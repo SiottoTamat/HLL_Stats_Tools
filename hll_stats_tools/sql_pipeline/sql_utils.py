@@ -13,7 +13,7 @@ import sys
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from hll_stats_tools.sql_tools.models import (
+from hll_stats_tools.sql_pipeline.models import (
     Game,
     GameAnalysis,
     Event,
@@ -21,6 +21,10 @@ from hll_stats_tools.sql_tools.models import (
     PlayerName,
     PlayerAnalysis,
 )
+
+from hll_stats_tools.utils.logger_utils import setup_logger
+
+logger = setup_logger(__name__)
 
 # from hll_stats_tools.sql_tools.models import Game, Event, Player
 
@@ -54,8 +58,11 @@ def batch_operation(
                 total = session.query(
                     func.count(model.__table__.c[model.__mapper__.primary_key[0].name])
                 ).scalar()
-                print(
-                    f"Found {total} {model.__tablename__} rows; processing in batches of {batch_size}…"
+                logger.info(
+                    "Found %d %s rows; processing in batches of %d…",
+                    total,
+                    model.__tablename__,
+                    batch_size,
                 )
 
                 # 4. Stream through rows
@@ -74,11 +81,11 @@ def batch_operation(
                     if idx % batch_size == 0:
                         session.commit()
                         session.expire_all()
-                        print(f"  …processed {idx}/{total}")
+                        logger.info("  …processed %d/%d", idx, total)
 
                 # final commit
                 session.commit()
-                print("Batch operation complete.")
+                logger.info("Batch operation complete.")
             finally:
                 session.close()
 
@@ -179,8 +186,12 @@ def calc_player_stats(game, player_id):
             times.append(new_end)
         if len(times) % 2 != 0:
             entries = ",".join([str(x[1]) for x in times])
-            print(
-                f"times len is odd in game {game.game_key}, player {player_id}: \n{times}\n{entries}"
+            logger.warning(
+                "Times len is odd in game %s, player %s:\n%s\n%s",
+                game.game_key,
+                player_id,
+                times,
+                entries,
             )
             return None
         total_time = 0

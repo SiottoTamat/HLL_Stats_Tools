@@ -1,11 +1,22 @@
-update_logs: True
+# logging
+to_console: True
+# data_pipeline
+run_data_pipeline: True
 update_to_last_minute: True
+
+# json_pipeline
+run_json_pipeline: True
 split_logs_to_games: True
 create_analysis: True
-create_monthly_plots: True
-extract_player_plot: True
+create_monthly_plots: False
+extract_player_plot: False
 make_stats: False
-overwrite_game_logs: False
-focus_player: '76561198006728045'
+overwrite_game_logs: False #ATTENTION REQUIRED HERE
 
+# sql_pipeline
+run_sql_pipeline: True
+overwrite_database: False #ATTENTION REQUIRED HERE
+
+#player focus and metrics
+focus_player: '76561198006728045'
 metrics: [list Apolo kpm,list kpm,list dpm]

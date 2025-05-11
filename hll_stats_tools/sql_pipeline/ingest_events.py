@@ -15,8 +15,8 @@ from dotenv import load_dotenv
 import os
 
 
-from hll_stats_tools.sql_tools.utils import calc_player_stats
-from hll_stats_tools.sql_tools.models import (
+from hll_stats_tools.sql_pipeline.sql_utils import calc_player_stats
+from hll_stats_tools.sql_pipeline.models import (
     Base,
     Event,
     ProcessedFile,
@@ -26,13 +26,11 @@ from hll_stats_tools.sql_tools.models import (
     game_players,
     GameAnalysis,
     PlayerAnalysis,
-)  # <-- import Game
+)
+from hll_stats_tools.utils.logger_utils import setup_logger
 
-# Load env vars
-load_dotenv(".env")
-sql_database = os.getenv("sql_database")
-print(">> Using database at:", sql_database)
-log_folder = Path(os.getenv("out_folder_historical_logs"))
+logger = setup_logger(__name__)
+
 
 # SQLite variable limit and batch size
 SQLITE_MAX_VARS = 999
@@ -212,7 +210,7 @@ def ingest_batch(
     for path in file_paths:
         fname = path.name
         if session.get(ProcessedFile, fname) is not None:
-            print(f"Skipping already-processed file: {fname}")
+            logger.info("Skipping already-processed file: %s", fname)
             continue
 
         with open(path, encoding="utf-8") as f:
@@ -342,16 +340,30 @@ def ingest_batch(
     for fname in to_mark:
         session.add(ProcessedFile(filename=fname))
         if verbose:
-            print(f">>>Marked as processed: {fname}")
+            logger.info("Marked as processed: %s", fname)
 
-    print(f"Batch ingested: {len(to_mark)} files, {len(mappings)} events queued.")
+    logger.info(
+        "Batch ingested: %d files, %d events queued.", len(to_mark), len(mappings)
+    )
 
 
-if __name__ == "__main__":
-    # 0) Load env & decide if we’re resetting
+def run_sql_pipeline():
+
+    # Load env vars
     load_dotenv(".env")
+    sql_database = os.getenv("sql_database")
+    logger.info(">> Using database at:", sql_database)
+    log_folder = Path(os.getenv("out_folder_historical_logs"))
+
+    # 0) Load env & decide if we’re resetting
     force = os.getenv("FORCE_RESET", "").lower() in ("1", "true", "yes")
-    print(f">>> FORCE_RESET = {force!r}, using database {sql_database!r}")
+    logger.info(">>> FORCE_RESET = %r, using database %r", force, sql_database)
+    if force:
+        logger.warning("FORCE_RESET is set — this will drop all tables and indexes.")
+        confirm = input("Are you sure? [y/N] ").strip().lower()
+        if confirm not in ("y", "yes"):
+            logger.info("Aborting.")
+            return
 
     # 1) Create engine
     engine = create_engine(sql_database, echo=False)
@@ -364,9 +376,9 @@ if __name__ == "__main__":
 
         # Optional drop‐and‐recreate schema
         if force:
-            print(">>> Dropping all tables and indexes…")
+            logger.info("Dropping all tables and indexes…")
             Base.metadata.drop_all(engine)
-        print(">>> Creating tables and indexes…")
+        logger.info("Creating tables and indexes…")
         Base.metadata.create_all(engine)
 
     # 4) Prepare a single session for all batches
@@ -382,7 +394,7 @@ if __name__ == "__main__":
     active_games = {
         g.server: g for g in session.query(Game).filter(Game.ended == False).all()
     }
-    print(">>> Start ingest")
+    logger.info("Start ingest")
     # 5) Batch‐process your JSON files
     all_files = sorted(log_folder.glob("*.json"))
     for idx in range(0, len(all_files), BATCH_SIZE):
@@ -391,13 +403,16 @@ if __name__ == "__main__":
         ingest_batch(batch, session, last_nums, active_games, verbose=True)
         session.commit()
 
-        print(
-            f"Committed batch {idx//BATCH_SIZE + 1} of "
-            f"{((len(all_files) - 1)//BATCH_SIZE) + 1}"
+        logger.info(
+            "Committed batch %d of %d",
+            idx // BATCH_SIZE + 1,
+            ((len(all_files) - 1) // BATCH_SIZE) + 1,
         )
-
-    # add analysis for all games
 
     # 6) Tear down
     session.close()
-    print("All done.")
+    logger.info("All done.")
+
+
+if __name__ == "__main__":
+    run_sql_pipeline()

@@ -5,12 +5,15 @@ from dateutil.relativedelta import relativedelta
 import calendar
 import pandas as pd
 
-from hll_stats_tools.utils import (
+from hll_stats_tools.legacy_json.json_utils import (
     month_year_iter,
     grab_games_by_dates,
     openfile,
     deep_merge,
 )
+from hll_stats_tools.utils.logger_utils import setup_logger
+
+logger = setup_logger(__name__)
 
 
 def _get_last_analysis_date(analysis_folder: str | Path) -> date:
@@ -76,7 +79,7 @@ def _get_months_to_generate(
     last_plot_year_month = plot_files[-1].stem[:7]
     if last_plot_year_month == f"{last_analysis_date.year}_{last_analysis_date.month}":
         if not overwrite:
-            print("Plots are already up to date. Skipping generation.")
+            logger.info("Plots are already up to date. Skipping generation.")
             return None
 
     if overwrite:
@@ -86,7 +89,7 @@ def _get_months_to_generate(
         ]
     else:
         year, month = map(int, [last_plot_year_month[:4], last_plot_year_month[-2:]])
-        start_date = date(year, month, 1)  # + relativedelta(months=1)
+        start_date = date(year, month, 1)
         year_month_till_today = [
             (year, month)
             for year, month in month_year_iter(start_date, last_analysis_date)
@@ -193,16 +196,10 @@ def get_plot_from_analysis_list(
                 for player in analysis[grab].keys():
 
                     if player in filters_dict.keys():
-                        # if take_zeroes or analysis[grab][player] > 0:
                         result.setdefault(player, {}).setdefault(grab, {})[
                             analysis["start date"]
                         ] = analysis[grab][player]
-                    # else:
 
-                    #     if take_zeroes or analysis[grab][player] > 0:
-                    #         result[grab].setdefault("not_filter", {}).setdefault(
-                    #             player, {}
-                    #         )[analysis["start date"]] = analysis[grab][player]
     return result
 
 
@@ -323,11 +320,3 @@ def pandarize_plots(player_id: str, plots: str | list, data: dict) -> pd.DataFra
     df = pd.DataFrame(rows)
     if not df.empty:
         return df.sort_values("date").reset_index(drop=True)
-
-
-def main():
-    pass
-
-
-if __name__ == "__main__":
-    main()

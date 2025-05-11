@@ -1,7 +1,22 @@
+# Environment & IDE
 .env
 *.log
-*.json
 *.png
-old/
+*.json
+*.pyc
 __pycache__/
-scripts/
+*.sqlite
+*.db
+
+# Editor/project files
+.vscode/
+.idea/
+
+# Build tools
+dist/
+build/
+
+# Temporary or legacy code
+old/
+scripts/developing/
+
