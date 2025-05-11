@@ -4,7 +4,6 @@ from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
-
 from hll_stats_tools.legacy_json.json_utils import (
     only_actual_game_logs,
     start_end_isostring,
