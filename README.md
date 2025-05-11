@@ -61,7 +61,7 @@ you will have to setup your own .env file with these parameters:
 - group_members_json="path" - a json file where you keep all steam-id# (key) and in-game-names (value) of the players of the group
 - sql_database="sqlite:path/hll_stats.db" where you want to save your database (~12Gb per year of server operations)
 - force_reset="False"
-- espt_png_folder="-path" where to store your group png analysis
+- group_png_folder="-path" where to store your group png analysis (optional - see plot_all_ESPT.py example in scripts/)
 
 Sensitive or runtime overrides (like `FORCE_RESET`) are pulled from `.env`:
 
