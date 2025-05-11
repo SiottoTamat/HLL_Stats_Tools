@@ -1,26 +1,26 @@
-import os
-from pathlib import Path
-from datetime import datetime
-from sqlalchemy import create_engine, inspect, func
-from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
 import json
-import pandas as pd
-
+import os
 import sys
+from datetime import datetime
+from pathlib import Path
+
+import pandas as pd
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, func, inspect
+from sqlalchemy.orm import sessionmaker
 
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
+from hll_stats_tools.plotting.make_plot import plot_multiple_metrics
 from hll_stats_tools.sql_pipeline.models import (
     Game,
-    Player,
-    PlayerName,
     GameAnalysis,
+    Player,
     PlayerAnalysis,
+    PlayerName,
 )
 from hll_stats_tools.sql_pipeline.sql_utils import grab_player_plot
-from hll_stats_tools.plotting.make_plot import plot_multiple_metrics
 
 load_dotenv(".env")
 sql_database = os.getenv("sql_database")

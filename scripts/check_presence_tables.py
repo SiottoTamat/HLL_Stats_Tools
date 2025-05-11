@@ -1,6 +1,7 @@
-from sqlalchemy import inspect, create_engine
 import os
+
 from dotenv import load_dotenv
+from sqlalchemy import create_engine, inspect
 
 load_dotenv()
 engine = create_engine(os.getenv("sql_database"))

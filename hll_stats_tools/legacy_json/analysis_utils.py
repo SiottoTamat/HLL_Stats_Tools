@@ -7,11 +7,11 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from hll_stats_tools.legacy_json.logs_utils import check_game
 from hll_stats_tools.legacy_json.json_utils import (
     only_actual_game_logs,
     start_end_isostring,
 )
+from hll_stats_tools.legacy_json.logs_utils import check_game
 from hll_stats_tools.utils import openfile
 
 

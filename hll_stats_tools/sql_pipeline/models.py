@@ -1,26 +1,27 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
+from datetime import datetime
+
 from sqlalchemy import (
+    Boolean,
     Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
     Integer,
     String,
-    DateTime,
-    Text,
-    text,
-    ForeignKey,
-    Boolean,
-    Index,
-    or_,
     Table,
-    Float,
+    Text,
+    or_,
+    text,
 )
-from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from datetime import datetime
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 

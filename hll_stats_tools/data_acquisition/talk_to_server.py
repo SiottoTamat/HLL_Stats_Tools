@@ -1,13 +1,14 @@
-from dotenv import load_dotenv
-import os
-import requests
-from datetime import datetime
 import json
-from typing import Any, Dict, List, Union
+import os
+from datetime import datetime
 from pathlib import Path
-from dateutil.relativedelta import relativedelta
-from hll_stats_tools.utils import openfile
+from typing import Any, Dict, List, Union
 
+import requests
+from dateutil.relativedelta import relativedelta
+from dotenv import load_dotenv
+
+from hll_stats_tools.utils import openfile
 
 load_dotenv(".env")
 API_KEY = os.getenv("API_KEY")

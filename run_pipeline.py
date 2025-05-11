@@ -1,5 +1,6 @@
-import yaml
 from pathlib import Path
+
+import yaml
 
 from hll_stats_tools.data_acquisition.data_pipeline import run_data_pipeline
 from hll_stats_tools.legacy_json.json_pipeline import run_json_pipeline

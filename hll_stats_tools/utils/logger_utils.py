@@ -1,8 +1,9 @@
 import logging
+import os
 from pathlib import Path
+
 import yaml
 from dotenv import load_dotenv
-import os
 
 cfg = yaml.safe_load(Path("config.yaml").read_text())
 to_console = cfg["to_console"]

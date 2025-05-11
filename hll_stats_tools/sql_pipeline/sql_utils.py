@@ -1,27 +1,26 @@
-import os
 import functools
-from sqlalchemy import create_engine, func, select
-from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
-from pathlib import Path
-from itertools import pairwise, chain
+import os
+import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
+from itertools import chain, pairwise
+from pathlib import Path
 
-import sys
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, func, select
+from sqlalchemy.orm import sessionmaker
 
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
 from hll_stats_tools.sql_pipeline.models import (
+    Event,
     Game,
     GameAnalysis,
-    Event,
     Player,
-    PlayerName,
     PlayerAnalysis,
+    PlayerName,
 )
-
 from hll_stats_tools.utils.logger_utils import setup_logger
 
 logger = setup_logger(__name__)

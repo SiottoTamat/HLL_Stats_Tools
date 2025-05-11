@@ -1,17 +1,19 @@
-from sqlalchemy import create_engine, func, distinct
-from sqlalchemy.orm import sessionmaker
+import sys
 from datetime import datetime
 from pathlib import Path
-import sys
+
+from sqlalchemy import create_engine, distinct, func
+from sqlalchemy.orm import sessionmaker
 
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from hll_stats_tools.sql_pipeline.models import Event
-from dotenv import load_dotenv
 import os
-
 import time
+
+from dotenv import load_dotenv
+
+from hll_stats_tools.sql_pipeline.models import Event
 
 # Load env vars
 load_dotenv(".env")

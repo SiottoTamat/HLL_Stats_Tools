@@ -1,13 +1,13 @@
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
+
 import yaml
-import os
 from dotenv import load_dotenv
-
-from utils import openfile
 from talk_to_server import download_sequential_logs
-from hll_stats_tools.utils.logger_utils import setup_logger
+from utils import openfile
 
+from hll_stats_tools.utils.logger_utils import setup_logger
 
 cfg = yaml.safe_load(Path("config.yaml").read_text())
 

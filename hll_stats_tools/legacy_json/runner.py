@@ -1,17 +1,19 @@
-from datetime import datetime, timedelta, date
 import json
 import os
+from datetime import date, datetime, timedelta
 from pathlib import Path
-
-from logs_utils import merge_logs_to_games
-from analysis_utils import refill_analysis_folder
 from statistics import (
     create_plots,
-    player_plots_from_fileplot,
     pandarize_plots,
+    player_plots_from_fileplot,
 )
-from ..plotting.make_plot import plot_player_data
+
+from analysis_utils import refill_analysis_folder
+from logs_utils import merge_logs_to_games
+
 from hll_stats_tools.utils.logger_utils import setup_logger
+
+from ..plotting.make_plot import plot_player_data
 
 logger = setup_logger(__name__)
 

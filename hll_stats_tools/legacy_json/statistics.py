@@ -1,15 +1,16 @@
-from pathlib import Path
+import calendar
 import json
 from datetime import date
-from dateutil.relativedelta import relativedelta
-import calendar
+from pathlib import Path
+
 import pandas as pd
+from dateutil.relativedelta import relativedelta
 
 from hll_stats_tools.legacy_json.json_utils import (
-    month_year_iter,
-    grab_games_by_dates,
-    openfile,
     deep_merge,
+    grab_games_by_dates,
+    month_year_iter,
+    openfile,
 )
 from hll_stats_tools.utils.logger_utils import setup_logger
 

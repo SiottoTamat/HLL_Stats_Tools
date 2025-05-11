@@ -1,32 +1,32 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
 import json
-from datetime import datetime, timezone
-from dateutil import parser as dateutil_parser
-from sqlalchemy import create_engine, text, func
-from sqlalchemy.dialects.sqlite import insert as sqlite_insert
-from sqlalchemy.orm import sessionmaker, Session
-from pathlib import Path
-from dotenv import load_dotenv
 import os
+from datetime import datetime, timezone
+from pathlib import Path
 
+from dateutil import parser as dateutil_parser
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, func, text
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
+from sqlalchemy.orm import Session, sessionmaker
 
-from hll_stats_tools.sql_pipeline.sql_utils import calc_player_stats
 from hll_stats_tools.sql_pipeline.models import (
     Base,
     Event,
-    ProcessedFile,
     Game,
-    Player,
-    PlayerName,
-    game_players,
     GameAnalysis,
+    Player,
     PlayerAnalysis,
+    PlayerName,
+    ProcessedFile,
+    game_players,
 )
+from hll_stats_tools.sql_pipeline.sql_utils import calc_player_stats
 from hll_stats_tools.utils.logger_utils import setup_logger
 
 logger = setup_logger(__name__)
