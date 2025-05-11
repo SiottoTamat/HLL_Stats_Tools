@@ -10,8 +10,8 @@ from hll_stats_tools.legacy_json.json_utils import (
     deep_merge,
     grab_games_by_dates,
     month_year_iter,
-    openfile,
 )
+from hll_stats_tools.utils.common_utils import openfile
 from hll_stats_tools.utils.logger_utils import setup_logger
 
 logger = setup_logger(__name__)
@@ -173,7 +173,7 @@ def get_plot_from_analysis_list(
         if (accept_seeding or not analysis["seeding match"]) and (
             accept_incomplete or not analysis["incomplete game"]
         ):
-            if filters_dict == None:
+            if filters_dict is None:
                 filters_dict = analysis["players"]
             grabs = [
                 x
@@ -314,9 +314,14 @@ def pandarize_plots(player_id: str, plots: str | list, data: dict) -> pd.DataFra
     rows = []
     for metric in plots:
         metric_data = data.get(player_id, {}).get(metric, {})
-        for date, value in metric_data.items():
+        for adate, value in metric_data.items():
             rows.append(
-                {"player_id": player_id, "metric": metric, "date": date, "value": value}
+                {
+                    "player_id": player_id,
+                    "metric": metric,
+                    "date": adate,
+                    "value": value,
+                }
             )
     df = pd.DataFrame(rows)
     if not df.empty:

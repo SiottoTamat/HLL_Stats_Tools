@@ -186,152 +186,149 @@ def create_analysis(
     return db_analysis
 
 
+def is_processed(fname, session):
+    return session.get(ProcessedFile, fname) is not None
+
+
+def parse_match_start(ev, ev_time, srv, last_nums):
+    n = (last_nums.get(srv, 0) or 0) + 1
+    last_nums[srv] = n
+    key = f"{srv}_{n}"
+    raw = ev.get("content", "") or ""
+    prefix = "MATCH START "
+    if raw.startswith(prefix):
+        after = raw[len(prefix) :]
+        try:
+            game_map, game_mode = after.rsplit(" ", 1)
+        except ValueError:
+            game_map, game_mode = after, None
+    else:
+        game_map = game_mode = None
+    return Game(
+        game_key=key,
+        server=srv,
+        game_number=n,
+        start_time=ev_time,
+        map=game_map,
+        mode=game_mode,
+    )
+
+
+def close_match(ev, game, ev_time):
+    game.end_time = ev_time
+    game.ended = True
+    game.duration = int((game.end_time - game.start_time).total_seconds())
+    tokens = ev["content"].split("(")[1][:5].split(" - ")
+    game.allied_score = int(tokens[0])
+    game.axis_score = int(tokens[1])
+    game.winner = "allies" if game.allied_score > game.axis_score else "axis"
+
+
+def build_event_record(ev, ev_time, active_games):
+    srv = ev.get("server")
+    return {
+        "event_id": ev["id"],
+        "creation_time": parse_datetime(ev["creation_time"]),
+        "event_time": ev_time,
+        "type": ev["type"],
+        "player1_name": ev.get("player1_name"),
+        "player1_id": ev.get("player1_id"),
+        "player2_name": ev.get("player2_name"),
+        "player2_id": ev.get("player2_id"),
+        "raw": ev.get("raw"),
+        "content": ev.get("content"),
+        "server": srv,
+        "weapon": ev.get("weapon"),
+        "game_key": active_games[srv].game_key if srv in active_games else None,
+    }
+
+
+def process_event_file(data, session, last_nums, active_games):
+    """
+    Processes all events in a single parsed JSON file.
+    Returns a list of event mappings to be inserted.
+    """
+    records = []
+
+    for ev in sorted(data, key=lambda r: r["event_time"]):
+        update_player(session, ev, "player1_id", "player1_name")
+        update_player(session, ev, "player2_id", "player2_name")
+
+        ev_time = parse_datetime(ev["event_time"])
+        ev_type = ev["type"]
+        srv = ev.get("server")
+
+        if srv in active_games and "THANK YOU FOR SEEDING" in (ev.get("content") or ""):
+            active_games[srv].seeding = True
+            session.add(active_games[srv])
+
+        if ev_type == "MATCH START":
+            game = parse_match_start(ev, ev_time, srv, last_nums)
+            session.add(game)
+            session.flush()
+            active_games[srv] = game
+
+        elif ev_type == "MATCH ENDED" and srv in active_games:
+            game = active_games[srv]
+            close_match(ev, game, ev_time)
+            session.add(game)
+            analysis = create_analysis(session, game)
+            if analysis:
+                session.add(analysis)
+            else:
+                logger.debug(
+                    "Skipped analysis for game %s (ended=%s, seeding=%s)",
+                    game.game_key,
+                    game.ended,
+                    game.seeding,
+                )
+
+        records.append(build_event_record(ev, ev_time, active_games))
+
+        if srv in active_games:
+            gk = active_games[srv].game_key
+            for pid in (ev.get("player1_id"), ev.get("player2_id")):
+                if pid:
+                    stmt = (
+                        sqlite_insert(game_players)
+                        .values(game_key=gk, player_id=pid)
+                        .prefix_with("OR IGNORE")
+                    )
+                    session.execute(stmt)
+
+    return records
+
+
 def ingest_batch(
-    file_paths: list[Path],
-    session,
-    last_nums: dict[str, int],
-    active_games: dict[str, Game],
-    verbose: bool = False,
-):
-    """
-    Ingests a batch of JSON files into the events table,
-    creating/closing Game rows on MATCH START/ENDED, and
-    tagging each Event with its game_key.
-    """
+    file_paths, session, last_nums, active_games, verbose=False
+):  # noqa: C901
     mappings = []
     to_mark = []
 
     for path in file_paths:
         fname = path.name
-        if session.get(ProcessedFile, fname) is not None:
+        if is_processed(fname, session):
             logger.info("Skipping already-processed file: %s", fname)
             continue
 
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
 
-        # Sort each file’s events by event_time so
-        # MATCH START comes before its events then MATCH END
-        for ev in sorted(data, key=lambda r: r["event_time"]):
-            update_player(session, ev, "player1_id", "player1_name")
-            update_player(session, ev, "player2_id", "player2_name")
-
-            ev_time = parse_datetime(ev["event_time"])
-            ev_type = ev["type"]
-            srv = ev.get("server")
-
-            if srv in active_games and "THANK YOU FOR SEEDING" in (
-                ev.get("content") or ""
-            ):
-                active_games[srv].seeding = True
-                session.add(active_games[srv])
-
-            # ——— MATCH START: open a new Game on this server ———
-            if ev_type == "MATCH START":
-                # bump the per-server counter
-                n = (last_nums.get(srv, 0) or 0) + 1
-                last_nums[srv] = n
-
-                key = f"{srv}_{n}"
-
-                # parse map & mode out of content, e.g. "MATCH START CARENTAN Warfare"
-                # strip the leading prefix
-                prefix = "MATCH START "
-                raw = ev.get("content", "") or ""
-                if raw.startswith(prefix):
-                    after = raw[len(prefix) :]  # "ST MARIE DU MONT Warfare"
-                    try:
-                        game_map, game_mode = after.rsplit(
-                            " ", 1
-                        )  # split on last space
-                    except ValueError:
-                        # fallback if there’s no space
-                        game_map, game_mode = after, None
-                else:
-                    game_map = game_mode = None
-
-                game = Game(
-                    game_key=key,
-                    server=srv,
-                    game_number=n,
-                    start_time=ev_time,
-                    map=game_map,
-                    mode=game_mode,
-                )
-                session.add(game)
-                session.flush()  # populate game_key PK
-                active_games[srv] = game
-
-            # ——— MATCH ENDED: close the existing Game ———
-            elif ev_type == "MATCH ENDED" and srv in active_games:
-                game = active_games[srv]
-                game.end_time = ev_time
-                game.ended = True
-
-                delta = (game.end_time - game.start_time).total_seconds()
-                game.duration = int(delta)
-                tokens = ev["content"].split("(")[1][:5].split(" - ")
-                game.allied_score = int(tokens[0])
-                game.axis_score = int(tokens[1])
-                game.winner = (
-                    "allies" if game.allied_score > game.axis_score else "axis"
-                )
-
-                session.add(game)
-                analysis = create_analysis(session, game)
-                session.add(analysis)
-
-            # ——— build the Event mapping, including game_key ———
-            mappings.append(
-                {
-                    "event_id": ev["id"],
-                    "creation_time": parse_datetime(ev["creation_time"]),
-                    "event_time": ev_time,
-                    "type": ev_type,
-                    "player1_name": ev.get("player1_name"),
-                    "player1_id": ev.get("player1_id"),
-                    "player2_name": ev.get("player2_name"),
-                    "player2_id": ev.get("player2_id"),
-                    "raw": ev.get("raw"),
-                    "content": ev.get("content"),
-                    "server": srv,
-                    "weapon": ev.get("weapon"),
-                    # attach to current open game (if any)
-                    "game_key": (
-                        active_games[srv].game_key if srv in active_games else None
-                    ),
-                }
-            )
-            if srv in active_games:
-                gk = active_games[srv].game_key
-                for pid in (ev.get("player1_id"), ev.get("player2_id")):
-                    if pid:
-                        stmt = (
-                            sqlite_insert(game_players)
-                            .values(
-                                game_key=gk,
-                                player_id=pid,
-                            )
-                            .prefix_with("OR IGNORE")
-                        )
-                        session.execute(stmt)
-
+        records = process_event_file(data, session, last_nums, active_games)
+        mappings.extend(records)
         to_mark.append(fname)
 
     if not mappings:
         return
 
-    # Bulk insert all mappings in chunks to respect param limit
     cols = len(mappings[0])
     max_rows = max(1, SQLITE_MAX_VARS // cols)
-
     for i in range(0, len(mappings), max_rows):
         chunk = mappings[i : i + max_rows]
         stmt = sqlite_insert(Event.__table__).values(chunk)
         stmt = stmt.on_conflict_do_nothing(index_elements=["event_id"])
         session.execute(stmt)
 
-    # Mark files as processed
     for fname in to_mark:
         session.add(ProcessedFile(filename=fname))
         if verbose:

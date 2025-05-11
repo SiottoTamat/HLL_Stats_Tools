@@ -4,12 +4,9 @@ from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
-from hll_stats_tools.legacy_json.json_utils import (
-    only_actual_game_logs,
-    start_end_isostring,
-)
+from hll_stats_tools.legacy_json.json_utils import only_actual_game_logs
 from hll_stats_tools.legacy_json.logs_utils import check_game
-from hll_stats_tools.utils import openfile
+from hll_stats_tools.utils.common_utils import openfile, start_end_isostring
 
 
 def game_analysis(game: dict, file_stem: str) -> dict:

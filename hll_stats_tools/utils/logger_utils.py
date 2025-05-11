@@ -8,9 +8,6 @@ from dotenv import load_dotenv
 cfg = yaml.safe_load(Path("config.yaml").read_text())
 to_console = cfg["to_console"]
 
-load_dotenv(".env")
-log_file = Path(os.getenv("log_file"))
-
 
 def setup_logger(
     name: str = "hll_logger", level: int = logging.INFO, to_console: bool = True
@@ -29,7 +26,9 @@ def setup_logger(
     )
 
     # Ensure log directory exists
-    log_file = Path(log_file)
+    load_dotenv(".env")
+    log_file = Path(os.getenv("log_file"))
+    # log_file = Path(log_file)
     log_file.parent.mkdir(parents=True, exist_ok=True)
 
     # File handler
@@ -48,13 +47,15 @@ def setup_logger(
 
 def log_debug(logger, message, *args, maxlen=1000):
     """
-    Logs a message only if logger level is DEBUG, with optional truncation for long args.
+    Logs a message only if logger level is DEBUG,
+    with optional truncation for long args.
 
     Parameters:
         logger (logging.Logger): The logger instance to use.
         message (str): The format string with `%s` placeholders.
         *args: Arguments to format into the message.
-        maxlen (int): Max length for any individual argument; longer ones will be truncated.
+        maxlen (int): Max length for any individual argument;
+        longer ones will be truncated.
     """
     if logger.isEnabledFor(logging.DEBUG):
         truncated_args = [
