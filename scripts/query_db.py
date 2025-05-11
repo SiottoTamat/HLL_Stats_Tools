@@ -1,17 +1,10 @@
-import sys
 from datetime import datetime
-from pathlib import Path
+import os
+import time
+from dotenv import load_dotenv
 
 from sqlalchemy import create_engine, distinct, func
 from sqlalchemy.orm import sessionmaker
-
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
-import os
-import time
-
-from dotenv import load_dotenv
 
 from hll_stats_tools.sql_pipeline.models import Event
 
@@ -65,7 +58,8 @@ def main():
     print(f"Time taken: {end_time - start_time}")
 
     print(
-        f"Player {player_id} scored {kill_count} kills and died {death_count} times in {start.month} {start.year}"
+        f"Player {player_id} scored {kill_count} "
+        f"kills and died {death_count} times in {start.month} {start.year}"
     )
     # 4) Clean up
     session.close()

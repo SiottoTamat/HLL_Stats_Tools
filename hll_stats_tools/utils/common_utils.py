@@ -1,6 +1,9 @@
 import json
 from datetime import datetime
 from pathlib import Path
+from hll_stats_tools.utils.logger_utils import setup_logger
+
+logger = setup_logger(__name__)
 
 
 def openfile(file: str | Path) -> dict:
@@ -9,7 +12,8 @@ def openfile(file: str | Path) -> dict:
     with file.open("r", encoding="utf-8") as f:
         try:
             data = json.loads(f.read())
-        except:
+        except Exception as e:
+            logger.error("Failed to load JSON from %s: %s", file, str(e))
             data = None
     return data
 
@@ -62,7 +66,8 @@ def recuperate_datetime(date: str) -> datetime:
     isostring = f"{splitted[0]}T{splitted[1].replace('-', ':')}"
     try:
         return datetime.fromisoformat(isostring)
-    except:
+    except Exception as e:
+        logger.error("Failed to recuperate datetime: %s", str(e))
         return None
 
 

@@ -1,17 +1,12 @@
 import functools
 import os
-import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from itertools import chain, pairwise
-from pathlib import Path
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
-
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
 
 from hll_stats_tools.sql_pipeline.models import (
     Game,
@@ -240,7 +235,7 @@ def calc_player_stats(game, player_id):
     }
 
 
-###### Useful Queries for plotting
+# ----- Useful Queries for plotting
 
 
 def get_games_player(
