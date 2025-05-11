@@ -50,18 +50,18 @@ json_pipeline:
   output_folder: "data/json_analyses"
 ```
 you will have to setup your own .env file with these parameters:
-API_KEY="apikey000#"
-log_file="path" - where your log will reside
-out_folder_historical_logs="path" - where the downloaded logs will reside
-out_folder_game_logs="path" - (if you use the json version) where your split games will be
-out_folder_analysis="path" - (if you use the json version) where your game analysis files will be
-out_folder_plots="path" - (if you use the json version) where your player plots will be
-out_folder_player_plots="path" - (if you use the json version) where your png plots will be
-group_name='ESPT' - this is a name of a group (if you want to create a group of players you want to analyse seamlessly)
-group_members_json="path" - a json file where you keep all steam-id# (key) and in-game-names (value) of the players of the group
-sql_database="sqlite:path/hll_stats.db" where you want to save your database (~12Gb per year of server operations)
-force_reset="False"
-espt_png_folder="-path" where to store your group png analysis
+- API_KEY="apikey000#"
+- log_file="path" - where your log will reside
+- out_folder_historical_logs="path" - where the downloaded logs will reside
+- out_folder_game_logs="path" - (if you use the json version) where your split games will be
+- out_folder_analysis="path" - (if you use the json version) where your game analysis files will be
+- out_folder_plots="path" - (if you use the json version) where your player plots will be
+- out_folder_player_plots="path" - (if you use the json version) where your png plots will be
+- group_name='ESPT' - this is a name of a group (if you want to create a group of players you want to analyse seamlessly)
+- group_members_json="path" - a json file where you keep all steam-id# (key) and in-game-names (value) of the players of the group
+- sql_database="sqlite:path/hll_stats.db" where you want to save your database (~12Gb per year of server operations)
+- force_reset="False"
+- espt_png_folder="-path" where to store your group png analysis
 
 Sensitive or runtime overrides (like `FORCE_RESET`) are pulled from `.env`:
 
