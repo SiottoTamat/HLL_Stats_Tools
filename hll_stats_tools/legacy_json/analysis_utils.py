@@ -1,11 +1,9 @@
 import json
 import statistics
-from collections import Counter, defaultdict
+from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
-import matplotlib.pyplot as plt
-import pandas as pd
 
 from hll_stats_tools.legacy_json.json_utils import (
     only_actual_game_logs,
@@ -148,7 +146,6 @@ def all_pl_kill_distribution(game: dict) -> tuple:
             # kill_distr[log["player1_id"]] = [seconds]
             dict[actor] = {seconds: [(actor1, weapon)]}
 
-    players_id = list_players(game).keys()
     match_start = game["date"]
     kill_distr = {}
     death_distr = {}

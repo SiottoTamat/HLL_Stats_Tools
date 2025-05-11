@@ -11,7 +11,6 @@ from hll_stats_tools.utils.logger_utils import setup_logger
 from .runner import (
     run_analysis,
     run_extract_player_plot,
-    run_fetch_logs,
     run_make_player_plot,
     run_plots,
     run_split_game_logs,

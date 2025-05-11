@@ -1,6 +1,5 @@
 import json
-import os
-from datetime import date, datetime, timedelta
+from datetime import date
 from pathlib import Path
 from statistics import (
     create_plots,

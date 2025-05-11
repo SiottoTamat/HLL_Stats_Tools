@@ -17,8 +17,6 @@ from sqlalchemy import (
     String,
     Table,
     Text,
-    or_,
-    text,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship

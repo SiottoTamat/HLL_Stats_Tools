@@ -7,19 +7,17 @@ from itertools import chain, pairwise
 from pathlib import Path
 
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, func, select
+from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
 from hll_stats_tools.sql_pipeline.models import (
-    Event,
     Game,
     GameAnalysis,
     Player,
     PlayerAnalysis,
-    PlayerName,
 )
 from hll_stats_tools.utils.logger_utils import setup_logger
 

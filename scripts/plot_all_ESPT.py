@@ -4,9 +4,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-import pandas as pd
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, func, inspect
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 project_root = Path(__file__).resolve().parent.parent
@@ -14,11 +13,7 @@ sys.path.insert(0, str(project_root))
 
 from hll_stats_tools.plotting.make_plot import plot_multiple_metrics
 from hll_stats_tools.sql_pipeline.models import (
-    Game,
-    GameAnalysis,
-    Player,
     PlayerAnalysis,
-    PlayerName,
 )
 from hll_stats_tools.sql_pipeline.sql_utils import grab_player_plot
 
