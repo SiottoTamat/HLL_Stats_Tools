@@ -1,17 +1,11 @@
-import sys
-from pathlib import Path
-
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
 import json
 import os
 from datetime import datetime, timezone
 from pathlib import Path
-
 from dateutil import parser as dateutil_parser
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, func, text
+
+from sqlalchemy import create_engine, func, text, false
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -216,7 +210,8 @@ def ingest_batch(
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
 
-        # Sort each file’s events by event_time so START comes before its events then END
+        # Sort each file’s events by event_time so
+        # MATCH START comes before its events then MATCH END
         for ev in sorted(data, key=lambda r: r["event_time"]):
             update_player(session, ev, "player1_id", "player1_name")
             update_player(session, ev, "player2_id", "player2_name")
@@ -392,7 +387,7 @@ def run_sql_pipeline():
         .all()
     )
     active_games = {
-        g.server: g for g in session.query(Game).filter(Game.ended == False).all()
+        g.server: g for g in session.query(Game).filter(Game.ended == false()).all()
     }
     logger.info("Start ingest")
     # 5) Batch‐process your JSON files

@@ -113,11 +113,12 @@ def plot_multiple_metrics(
     max_value: float = 1.75,
 ):
     """
-    Plots one or more time series (player metrics) with optional resampling and rolling average.
+    Plots one or more time series (player metrics) with optional resampling and
+    rolling average.
 
     Parameters:
         metrics_by_date : dict[str, dict[str, float]]
-            {metric_name: {date_str: value, ...}}
+            Format: {metric_name: {date_str: value, ...}}
         group_by : str
             Time grouping: 'D', 'W', or 'M'
         rolling_average : int | None
@@ -129,6 +130,7 @@ def plot_multiple_metrics(
         namefile : Path | None
             If set, saves the plot; otherwise, shows it
     """
+
     if not metrics_by_date:
         print("⚠️ No data to plot.")
         return

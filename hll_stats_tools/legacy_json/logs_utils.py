@@ -21,7 +21,7 @@ def merge_logs_to_games(
         log_start = get_end(openfile(sorted(output_folder.glob("*.json"))[-1]))
         start_from = log_start[:10]
 
-        # "2025-03-02T21:48:46" -> end of the last Carentan Warfare match in the output folder
+        # "2025-03-02T21:48:46" -> example
         files = get_files_after_date(folder, start_from)
     else:
         files = folder.glob("*.json")

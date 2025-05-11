@@ -26,7 +26,8 @@ def get_historical_log(
         limit (int, optional): The maximum number of logs to fetch. Defaults to 3000.
 
     Returns:
-        Union[Dict[str, Any], List[Any]]: The historical logs data as a dictionary or list.
+        Union[Dict[str, Any], List[Any]]:
+        The historical logs data as a dictionary or list.
     """
 
     # Convert the start date-time from string to datetime object
@@ -75,7 +76,8 @@ def get_last_log_entry(folder: str | Path) -> str | None:
         folder: The folder to search for log files.
 
     Returns:
-        The time of the last log entry in the most recent log file, or None if no log files are found.
+        The time of the last log entry in the most recent log file,
+        or None if no log files are found.
     """
     if isinstance(folder, str):
         folder = Path(folder)

@@ -14,8 +14,8 @@ from hll_stats_tools.utils import openfile
 
 def game_analysis(game: dict, file_stem: str) -> dict:
     """
-    Analyzes a game log and calculates various statistics related to kills, deaths, team kills,
-    and player performance.
+    Analyzes a game log and calculates various statistics related
+    to kills, deaths, team kills, and player performance.
 
     Parameters:
     game (dict): A dictionary containing the game log data.
@@ -117,20 +117,32 @@ def gametime_and_result(game: dict) -> int:
 
 def all_pl_kill_distribution(game: dict) -> tuple:
     """
-    This function calculates the kill distribution and death distribution of players in a game.
+    This function calculates the kill distribution
+    and death distribution of players in a game.
 
     Parameters:
-    game (dict): A dictionary representing a game log. The dictionary should contain the following keys:
+    game (dict): A dictionary representing a game log.
+    The dictionary should contain the following keys:
         - "date": A string representing the start time of the game in ISO 8601 format.
-        - "logs": A list of dictionaries representing game events. Each event dictionary should contain the following keys:
-            - "type": A string representing the type of event (e.g., "KILL").
-            - "event_time": A string representing the time of the event in ISO 8601 format.
-            - "player1_id": A string representing the ID of the first player involved in the event.
-            - "player2_id": A string representing the ID of the second player involved in the event.
-            - "weapon": A string representing the weapon used in the event.
+        - "logs": A list of dictionaries representing game events.
+    Each event dictionary should contain the following keys:
+        - "type": A string representing the type of event (e.g., "KILL").
+        - "event_time": A string representing the time of the event in ISO 8601 format.
+        - "player1_id": A string representing
+            the ID of the first player involved in the event.
+        - "player2_id": A string representing
+            the ID of the second player involved in the event.
+        - "weapon": A string representing the weapon used in the event.
 
     Returns:
-    tuple: A tuple containing two dictionaries. The first dictionary represents the kill distribution, where the keys are player IDs and the values are dictionaries. Each inner dictionary contains the seconds from the start of the game as keys and a list of tuples representing the victims and weapons used as values. The second dictionary represents the death distribution, following the same format as the kill distribution.
+    tuple: A tuple containing two dictionaries.
+    The first dictionary represents the kill distribution,
+    where the keys are player IDs and the values are dictionaries.
+    Each inner dictionary contains the seconds from the start of
+    the game as keys and a list of tuples representing
+    the victims and weapons used as values.
+    The second dictionary represents the death distribution,
+    following the same format as the kill distribution.
     """
 
     def check_situation(dict, seconds, actor, actor1, weapon) -> None:
@@ -170,16 +182,23 @@ def list_players(game: dict) -> list:
     This function retrieves a list of unique players from a game log.
 
     Parameters:
-    game (dict): A dictionary representing a game log. The dictionary should contain the following keys:
-        - "logs": A list of dictionaries representing game events. Each event dictionary should contain the following keys:
-            - "player1_id": A string representing the ID of the first player involved in the event.
-            - "player2_id": A string representing the ID of the second player involved in the event.
-            - "player1_name": A string representing the name of the first player involved in the event.
-            - "player2_name": A string representing the name of the second player involved in the event.
+        game (dict): A dictionary representing a game log. The dictionary should contain
+            the following keys:
+            - "logs": A list of dictionaries representing game events. Each event
+              dictionary should contain the following keys:
+                - "player1_id": A string representing the ID of the first player
+                  involved in the event.
+                - "player2_id": A string representing the ID of the second player
+                  involved in the event.
+                - "player1_name": A string representing the name of the first player
+                  involved in the event.
+                - "player2_name": A string representing the name of the second player
+                  involved in the event.
 
     Returns:
-    list: A list of unique player names from the game log.
+        list: A list of unique player names from the game log.
     """
+
     players = {}
 
     list_pl1 = [
@@ -217,14 +236,19 @@ def player_total_seconds(game: dict, player_id: str) -> int:
     Calculates the total number of seconds a player was connected to the game.
 
     Parameters:
-    game (dict): A dictionary representing a game log. The dictionary should contain the following keys:
+    game (dict): A dictionary representing a game log.
+    The dictionary should contain the following keys:
         - "date": A string representing the start time of the game in ISO 8601 format.
-        - "logs": A list of dictionaries representing game events. Each event dictionary should contain the following keys:
-            - "type": A string representing the type of event (e.g., "DISCONNECTED", "CONNECTED").
-            - "event_time": A string representing the time of the event in ISO 8601 format.
-            - "player1_id": A string representing the ID of the player involved in the event.
+        - "logs": A list of dictionaries representing game events.
+        Each event dictionary should contain the following keys:
+        - "type": A string representing the type of event
+            (e.g., "DISCONNECTED", "CONNECTED").
+        - "event_time": A string representing the time of the event in ISO 8601 format.
+        - "player1_id": A string representing the ID of the player
+            involved in the event.
 
-    player_id (str): The ID of the player for whom the total connected time needs to be calculated.
+    player_id (str): The ID of the player for whom the total connected time
+    needs to be calculated.
 
     Returns:
     int: The total number of seconds the player was connected to the game.
@@ -263,27 +287,42 @@ def player_total_seconds(game: dict, player_id: str) -> int:
 
 def get_event_per_minute(game, events, player_id, time_played: int = None) -> float:
     """
-    Calculates the average number of events per minute for a specific player in a given event distribution.
+    Calculates the average number of events per minute for a specific player in a
+    given event distribution.
 
     Parameters:
-    game (dict): A dictionary representing the game log. The dictionary should contain the following keys:
-        - "date": A string representing the start time of the game in ISO 8601 format.
-        - "logs": A list of dictionaries representing game events. Each event dictionary should contain the following keys:
-            - "type": A string representing the type of event (e.g., "KILL").
-            - "event_time": A string representing the time of the event in ISO 8601 format.
-            - "player1_id": A string representing the ID of the first player involved in the event.
-            - "player2_id": A string representing the ID of the second player involved in the event.
-            - "weapon": A string representing the weapon used in the event.
+        game (dict): A dictionary representing the game log. The dictionary should
+            contain the following keys:
+            - "date": A string representing the start time of the game in ISO 8601
+              format.
+            - "logs": A list of dictionaries representing game events. Each event
+              dictionary should contain the following keys:
+                - "type": A string representing the type of event (e.g., "KILL").
+                - "event_time": A string representing the time of the event in ISO
+                  8601 format.
+                - "player1_id": A string representing the ID of the first player
+                  involved in the event.
+                - "player2_id": A string representing the ID of the second player
+                  involved in the event.
+                - "weapon": A string representing the weapon used in the event.
 
-    events (dict): A dictionary representing the event distribution. The keys are player IDs, and the values are dictionaries. Each inner dictionary contains the seconds from the start of the game as keys and a list of tuples representing the event details as values.
+        events (dict): A dictionary representing the event distribution. The keys
+            are player IDs, and the values are dictionaries. Each inner dictionary
+            contains the seconds from the start of the game as keys and a list of
+            tuples representing the event details as values.
 
-    player_id (str): The ID of the player for whom the average number of events per minute needs to be calculated.
+        player_id (str): The ID of the player for whom the average number of events
+            per minute needs to be calculated.
 
-    time_played (int, optional): The total number of seconds the player was connected to the game. If not provided, it will be calculated using the `player_total_seconds` function.
+        time_played (int, optional): The total number of seconds the player was
+            connected to the game. If not provided, it will be calculated using the
+            `player_total_seconds` function.
 
     Returns:
-    float: The average number of events per minute for the specified player in the given event distribution. The result is rounded to two decimal places.
+        float: The average number of events per minute for the specified player in
+        the given event distribution. The result is rounded to two decimal places.
     """
+
     if not time_played:
         time_played = player_total_seconds(game, player_id)
     all_events = total_events(events, player_id)
@@ -295,14 +334,21 @@ def get_event_per_minute(game, events, player_id, time_played: int = None) -> fl
 
 def total_events(event_distr: dict, player_id: str) -> int:
     """
-    Calculates the total number of events (e.g., kills, deaths) for a specific player in a given event distribution.
+    Calculates the total number of events (e.g., kills, deaths) for a specific
+    player in a given event distribution.
 
     Parameters:
-    event_distr (dict): A dictionary representing the event distribution. The keys are player IDs, and the values are dictionaries. Each inner dictionary contains the seconds from the start of the game as keys and a list of tuples representing the event details as values.
-    player_id (str): The ID of the player for whom the total number of events needs to be calculated.
+        event_distr (dict): A dictionary representing the event distribution. The
+            keys are player IDs, and the values are dictionaries. Each inner
+            dictionary contains the seconds from the start of the game as keys and
+            a list of tuples representing the event details as values.
+
+        player_id (str): The ID of the player for whom the total number of events
+            needs to be calculated.
 
     Returns:
-    int: The total number of events for the specified player in the given event distribution.
+        int: The total number of events for the specified player in the given event
+        distribution.
     """
     return sum(len(x) for x in event_distr.get(player_id, {}).values())
 
@@ -312,13 +358,24 @@ def count_actor(event_distr: dict, player_id: str, index: int = 0) -> dict:
     Counts the occurrences of actors (players) in a given event distribution.
 
     Parameters:
-    event_distr (dict): A dictionary representing the event distribution. The keys are player IDs, and the values are dictionaries. Each inner dictionary contains the seconds from the start of the game as keys and a list of tuples representing the event details as values.
-    player_id (str): The ID of the player for whom the actor occurrences need to be counted.
-    index (int, optional): An integer representing the index of the actor in the event details tuple. If 0, it counts the occurrences of the first actor in the tuple. If 1, it counts the occurrences of the second actor in the tuple. Defaults to 0.
+        event_distr (dict): A dictionary representing the event distribution. The
+            keys are player IDs, and the values are dictionaries. Each inner
+            dictionary contains the seconds from the start of the game as keys and
+            a list of tuples representing the event details as values.
+
+        player_id (str): The ID of the player for whom the actor occurrences need
+            to be counted.
+
+        index (int, optional): An integer representing the index of the actor in
+            the event details tuple. If 0, it counts the first actor. If 1, it
+            counts the second. Defaults to 0.
 
     Returns:
-    dict: A dictionary containing the actor IDs as keys and their corresponding counts as values. The dictionary is sorted in descending order based on the counts.
+        dict: A dictionary containing actor IDs as keys and their corresponding
+        counts as values. The dictionary is sorted in descending order based on the
+        counts.
     """
+
     if player_id in event_distr:
         values = event_distr[player_id]
         if index == 0:
@@ -332,15 +389,23 @@ def count_actor(event_distr: dict, player_id: str, index: int = 0) -> dict:
 
 def sum_values(event_distr: dict, player_id: str) -> int:
     """
-    Calculates the sum of values associated with a specific player in an event distribution.
+    Calculates the sum of values associated with a specific player in an event
+    distribution.
 
     Parameters:
-    event_distr (dict): A dictionary representing the event distribution. The keys are player IDs, and the values are dictionaries. Each inner dictionary contains the seconds from the start of the game as keys and a list of tuples representing the event details as values.
-    player_id (str): The ID of the player for whom the sum of values needs to be calculated.
+        event_distr (dict): A dictionary representing the event distribution. The
+            keys are player IDs, and the values are dictionaries. Each inner
+            dictionary contains the seconds from the start of the game as keys and
+            a list of tuples representing the event details as values.
+
+        player_id (str): The ID of the player for whom the sum of values needs to
+            be calculated.
 
     Returns:
-    int: The sum of values associated with the specified player in the given event distribution. If the player ID is not found in the event distribution, the function returns 0.
+        int: The sum of values associated with the specified player in the given
+        event distribution. If the player ID is not found, the function returns 0.
     """
+
     if player_id in event_distr:
         values = event_distr[player_id]
         all_ids = [x[1] for x in values]
@@ -351,16 +416,23 @@ def sum_values(event_distr: dict, player_id: str) -> int:
 
 def count_events(event_distr: dict, player_id: str) -> int:
     """
-    Counts the total number of events (e.g., kills, deaths) for a specific player in a given event distribution.
+    Counts the total number of events (e.g., kills, deaths) for a specific player in
+    a given event distribution.
 
     Parameters:
-    event_distr (dict): A dictionary representing the event distribution. The keys are player IDs, and the values are dictionaries. Each inner dictionary contains the seconds from the start of the game as keys and a list of tuples representing the event details as values.
+        event_distr (dict): A dictionary representing the event distribution. The
+            keys are player IDs, and the values are dictionaries. Each inner
+            dictionary contains the seconds from the start of the game as keys and
+            a list of tuples representing the event details as values.
 
-    player_id (str): The ID of the player for whom the total number of events needs to be calculated.
+        player_id (str): The ID of the player for whom the total number of events
+            needs to be calculated.
 
     Returns:
-    int: The total number of events for the specified player in the given event distribution. If the player ID is not found in the event distribution, the function returns 0.
+        int: The total number of events for the specified player in the given event
+        distribution. If the player ID is not found, the function returns 0.
     """
+
     if player_id in event_distr:
         values = event_distr[player_id]
         return sum([len(x) for x in values.values()])
@@ -377,18 +449,20 @@ def weighted_kpm(
     rank_percentile: float, player_kills: int, kill_avg: float, kpm: float
 ) -> float:
     """
-    Calculates a weighted Kills per Minute (KPM) score based on the player's rank percentile,
-    actual kills, average kills per minute, and the player's KPM.
+    Calculates a weighted Kills per Minute (KPM) score based on the player's rank
+    percentile, actual kills, average kills per minute, and the player's KPM.
 
     Parameters:
-    rank_percentile (float): The player's rank percentile in the game.
-    player_kills (int): The actual number of kills made by the player.
-    kill_avg (float): The average number of kills per minute made by the players of the match.
-    kpm (float): The player's Kills per Minute (KPM).
+        rank_percentile (float): The player's rank percentile in the game.
+        player_kills (int): The actual number of kills made by the player.
+        kill_avg (float): The average number of kills per minute made by the players
+            of the match.
+        kpm (float): The player's Kills per Minute (KPM).
 
     Returns:
-    float: The weighted KPM score.
+        float: The weighted KPM score.
     """
+
     if kill_avg > 0:
         return (1 - ((rank_percentile - 1) / 100)) * (player_kills / kill_avg) * kpm
     return 0
