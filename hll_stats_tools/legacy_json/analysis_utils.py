@@ -509,7 +509,7 @@ def is_seeding(game: dict) -> bool:
 def refill_analysis_folder(out_folder_analysis: str | Path, folder_games: str | Path):
     out_folder_analysis = Path(out_folder_analysis)
     last_analysis_file = sorted(out_folder_analysis.glob("*.json"))[-1]
-    last_game_file_analysed = f"{last_analysis_file.stem.replace('_ANALYSIS','')}.json"
+    last_game_file_analysed = f"{last_analysis_file.stem.replace('_ANALYSIS', '')}.json"
     for file in folder_games.glob("*.json"):
         if file.name > last_game_file_analysed:
             print(file.name)
