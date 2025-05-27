@@ -41,9 +41,7 @@ def batch_operation(
             load_dotenv(".env")
             url = db_url or os.getenv("sql_database")
             if not url:
-                raise RuntimeError(
-                    "sql_database not set in .env or decorator arg"
-                )
+                raise RuntimeError("sql_database not set in .env or decorator arg")
 
             # 2. Create engine & session
             engine = create_engine(url, echo=False)
@@ -53,9 +51,7 @@ def batch_operation(
             try:
                 # 3. Count & announce
                 total = session.query(
-                    func.count(
-                        model.__table__.c[model.__mapper__.primary_key[0].name]
-                    )
+                    func.count(model.__table__.c[model.__mapper__.primary_key[0].name])
                 ).scalar()
                 logger.info(
                     "Found %d %s rows; processing in batches of %d…",
@@ -168,8 +164,7 @@ def calc_player_stats(game, player_id):
     timelimits = [
         ev
         for ev in game.events
-        if ev.type in ("CONNECTED", "DISCONNECTED")
-        and ev.player1_id == player_id
+        if ev.type in ("CONNECTED", "DISCONNECTED") and ev.player1_id == player_id
     ]
     if len(timelimits) == 0:
         total_time = game.duration - 300
@@ -301,9 +296,7 @@ def grab_player_plot_old(
         .all()
     )
 
-    metric_by_date = {
-        str(date): round(metric, round_to) for date, metric in results
-    }
+    metric_by_date = {str(date): round(metric, round_to) for date, metric in results}
     return metric_by_date
 
 

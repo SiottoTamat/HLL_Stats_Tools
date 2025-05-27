@@ -40,12 +40,8 @@ def main():
             print(f">>>plotting {name} in {file_out_name}")
 
             if plot_type == "date_average" or plot_type == "both":
-                kpm = grab_player_plot(
-                    session, id, start, end, PlayerAnalysis.kpm
-                )
-                dpm = grab_player_plot(
-                    session, id, start, end, PlayerAnalysis.dpm
-                )
+                kpm = grab_player_plot(session, id, start, end, PlayerAnalysis.kpm)
+                dpm = grab_player_plot(session, id, start, end, PlayerAnalysis.dpm)
                 plot_multiple_metrics(
                     {"KPM": kpm, "DPM": dpm},
                     title=title,
