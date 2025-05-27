@@ -3,10 +3,13 @@ import os
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from itertools import chain, pairwise
+from typing import List, Optional
 
+import pandas as pd
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, func
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.sql import ClauseElement
 
 from hll_stats_tools.sql_pipeline.models import (
     Game,
@@ -38,7 +41,9 @@ def batch_operation(
             load_dotenv(".env")
             url = db_url or os.getenv("sql_database")
             if not url:
-                raise RuntimeError("sql_database not set in .env or decorator arg")
+                raise RuntimeError(
+                    "sql_database not set in .env or decorator arg"
+                )
 
             # 2. Create engine & session
             engine = create_engine(url, echo=False)
@@ -48,7 +53,9 @@ def batch_operation(
             try:
                 # 3. Count & announce
                 total = session.query(
-                    func.count(model.__table__.c[model.__mapper__.primary_key[0].name])
+                    func.count(
+                        model.__table__.c[model.__mapper__.primary_key[0].name]
+                    )
                 ).scalar()
                 logger.info(
                     "Found %d %s rows; processing in batches of %d…",
@@ -161,14 +168,16 @@ def calc_player_stats(game, player_id):
     timelimits = [
         ev
         for ev in game.events
-        if ev.type in ("CONNECTED", "DISCONNECTED") and ev.player1_id == player_id
+        if ev.type in ("CONNECTED", "DISCONNECTED")
+        and ev.player1_id == player_id
     ]
     if len(timelimits) == 0:
         total_time = game.duration - 300
     else:
 
         times = sorted(
-            ((event.event_time, event.type) for event in timelimits), key=lambda x: x[0]
+            ((event.event_time, event.type) for event in timelimits),
+            key=lambda x: x[0],
         )
         if times[0][1] == "DISCONNECTED":
             new_start = (actual_start_time, "CONNECTED")
@@ -239,7 +248,11 @@ def calc_player_stats(game, player_id):
 
 
 def get_games_player(
-    session, player_id, server=1, date_start: datetime = None, date_end: datetime = None
+    session,
+    player_id,
+    server=1,
+    date_start: datetime = None,
+    date_end: datetime = None,
 ):
 
     filters = [Game.server == server]
@@ -266,7 +279,7 @@ def grab_game_by_start(session, start):
     return games
 
 
-def grab_player_plot(
+def grab_player_plot_old(
     session,
     player_id: str,
     date_start: datetime,
@@ -288,5 +301,82 @@ def grab_player_plot(
         .all()
     )
 
-    metric_by_date = {str(date): round(metric, round_to) for date, metric in results}
+    metric_by_date = {
+        str(date): round(metric, round_to) for date, metric in results
+    }
     return metric_by_date
+
+
+def fetch_player_metrics_by_game(
+    session: Session,
+    player_id: str,
+    metric_columns: List,  # e.g. [PlayerAnalysis.kpm, PlayerAnalysis.dpm]
+    *,
+    date_start: Optional[datetime] = None,
+    date_end: Optional[datetime] = None,
+    exclude_seeding: bool = True,
+    extra_filters: Optional[List[ClauseElement]] = None,
+    round_to: Optional[int] = None,
+) -> pd.DataFrame:
+    """
+    Fetches one row per game for the given player and metrics.
+
+    Args:
+      session        – SQLAlchemy Session
+      player_id      – the ID of the player to fetch
+      metric_columns – list of SQLAlchemy column expressions from PlayerAnalysis
+      date_start/end – optional datetime bounds on Game.start_time
+      exclude_seeding– if True, filters out Game.seeding == True
+      extra_filters  – any additional SQLA filter() clauses you want to apply
+      round_to       – if set, rounds all metric columns to this many decimals
+
+    Returns:
+      A DataFrame with:
+        • index = Timestamp of Game.start_time
+        • columns = one per metric (using each column’s .key as the name)
+        • optionally rounded values if round_to is provided
+    """
+    # 1) build your SELECT list: timestamp, game_key (if you want), plus each metric
+    sel = [
+        Game.start_time.label("timestamp"),
+        Game.game_key.label("game_key"),
+    ]
+    names = ["timestamp", "game_key"]
+    for col in metric_columns:
+        # use col.key if available, else fallback to repr(col)
+        name = getattr(col, "key", str(col))
+        sel.append(col.label(name))
+        names.append(name)
+
+    # 2) base query + joins
+    q = session.query(*sel)
+    q = q.join(GameAnalysis, PlayerAnalysis.analysis_id == GameAnalysis.id)
+    q = q.join(Game, GameAnalysis.game_key == Game.game_key)
+
+    # 3) filters
+    filt = [PlayerAnalysis.player_id == player_id]
+    if date_start:
+        filt.append(Game.start_time >= date_start)
+    if date_end:
+        filt.append(Game.start_time <= date_end)
+    if exclude_seeding:
+        filt.append(Game.seeding.is_(False))
+    if extra_filters:
+        filt.extend(extra_filters)
+    q = q.filter(*filt).order_by(Game.start_time)
+
+    # 4) execute and build DataFrame
+    rows = q.all()
+    if not rows:
+        # return empty with correct columns
+        return pd.DataFrame(columns=names).set_index("timestamp")
+
+    df = pd.DataFrame(rows, columns=names)
+    df["timestamp"] = pd.to_datetime(df["timestamp"])
+    df = df.set_index("timestamp")
+
+    # 5) rounding if requested
+    if round_to is not None:
+        df = df.round(round_to)
+
+    return df

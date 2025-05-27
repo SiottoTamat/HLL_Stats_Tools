@@ -1,8 +1,10 @@
 from datetime import date
 from pathlib import Path
 
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
+from statsmodels.nonparametric.smoothers_lowess import lowess
 
 
 def plot_player_data(
@@ -41,7 +43,9 @@ def plot_player_data(
 
     if constant_multiplier:
         # df["value"] = df["value"] * constant_multiplier
-        df.loc[df["metric"] == "list Apolo kpm", "value"] *= constant_multiplier
+        df.loc[
+            df["metric"] == "list Apolo kpm", "value"
+        ] *= constant_multiplier
 
     # Apply date range filtering
     if lim_start is not None:
@@ -54,7 +58,9 @@ def plot_player_data(
     ).dt.tz_localize(None)
     df = df.dropna(subset=["date"])
 
-    df["group"] = df["date"].dt.to_period(conversions[timeframe_group_by]).dt.start_time
+    df["group"] = (
+        df["date"].dt.to_period(conversions[timeframe_group_by]).dt.start_time
+    )
     grouped = df.groupby(["group", "metric"])["value"].mean().reset_index()
 
     pivot_df = grouped.pivot(index="group", columns="metric", values="value")
@@ -83,7 +89,9 @@ def plot_player_data(
             label=[f"{col} (avg)" for col in rolling_df.columns],
         )
 
-    plt.title(f"Player: {player_name} - {timeframe_group_by.capitalize()}ly Metrics")
+    plt.title(
+        f"Player: {player_name} - {timeframe_group_by.capitalize()}ly Metrics"
+    )
     plt.xlabel("Date")
     plt.ylabel("Value")
     plt.grid(True)
@@ -132,7 +140,7 @@ def plot_multiple_metrics(
     """
 
     if not metrics_by_date:
-        print("⚠️ No data to plot.")
+        print("No data to plot.")
         return
 
     # Build base DataFrame
@@ -142,6 +150,7 @@ def plot_multiple_metrics(
             for metric, data in metrics_by_date.items()
         }
     )
+    df = df[df != 0]
     df.index = pd.to_datetime(df.index)
     df.sort_index(inplace=True)
 
@@ -211,7 +220,84 @@ def plot_multiple_metrics(
 
     if namefile:
         plt.savefig(namefile, bbox_inches="tight")
-        print(f"✅ Plot saved to: {namefile}")
+        print(f"Plot saved to: {namefile}")
+        plt.close()
+    else:
+        plt.show()
+
+
+def plot_scatter_metric_dates(
+    df: pd.DataFrame,
+    player_id: str,
+    metric: str,
+    player_name: str = "",
+    round_to: int = 2,
+    namefile: Path | None = None,
+    out_folder: Path | None = None,
+    min_value: float = 0.0,
+    max_value: float = 2.0,
+):
+
+    # drop zero games
+    df = df[df[metric] > 0]
+
+    # prepare for plotting
+    dates = df.index
+    metric_values = df[metric].values
+
+    plt.style.use("ggplot")
+    fig, ax = plt.subplots(figsize=(12, 6), dpi=300)
+    ax.set_ylim(min_value, max_value)
+
+    # scatter
+    ax.scatter(
+        dates,
+        metric_values,
+        marker="x",
+        linewidths=0.7,
+        s=5,
+        alpha=0.7,
+        label="Games",
+    )
+
+    # LOWESS smoothing
+    x_numeric = mdates.date2num(dates)
+    smoothed = lowess(metric_values, x_numeric, frac=0.2)
+    ax.plot(
+        mdates.num2date(smoothed[:, 0]),
+        smoothed[:, 1],
+        linewidth=2,
+        color="grey",
+        label="LOWESS",
+    )
+
+    # format x-axis for dates
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
+    fig.autofmt_xdate()
+
+    # labels, title, legend
+    metric_name = metric.replace("_", " ").title()
+
+    player_tag = f"{player_id}_"
+    if player_name:
+        player_tag = f"{player_name}_"
+
+    ax.set_title(
+        f"{player_tag}{metric_name} scatter by Game Date (LOWESS Smoothed)"
+    )
+    ax.set_xlabel("Game Date")
+    ax.set_ylabel(metric_name)
+    ax.legend()
+
+    plt.tight_layout()
+
+    if not namefile and out_folder:
+        namefile = Path(out_folder) / Path(f"{player_tag}{metric}_scatter.png")
+
+    if out_folder:
+        plt.savefig(namefile, bbox_inches="tight")
+        print(f"Plot saved to: {namefile}")
         plt.close()
     else:
         plt.show()

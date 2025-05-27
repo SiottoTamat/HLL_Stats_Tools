@@ -1,0 +1,266 @@
+Event types:
+  - ADMIN
+  - ADMIN ANTI-CHEAT
+  - ADMIN BANNED
+  - ADMIN IDLE
+  - ADMIN KICKED
+  - ADMIN MISC
+  - ADMIN PERMA BANNED
+  - CAMERA
+  - CHAT[Allies][Team]
+  - CHAT[Allies][Unit]
+  - CHAT[Axis][Team]
+  - CHAT[Axis][Unit]
+  - CONNECTED
+  - DISCONNECTED
+  - KILL
+  - MATCH ENDED
+  - MATCH START
+  - MESSAGE
+  - TEAM KILL
+  - TEAMSWITCH
+  - TK AUTO BANNED
+  - TK AUTO KICKED
+  - TK BANNED FOR 2 HOURS
+  - TK KICKED
+  - VOTE
+  - VOTE COMPLETED
+  - VOTE EXPIRED
+  - VOTE PASSED
+  - VOTE STARTED
+
+Weapon types:
+  - 122MM HOWITZER [M1938 (M-30)]
+  - 150MM HOWITZER [sFH 18]
+  - 155MM HOWITZER [M114]
+  - 19-K 45MM [BA-10]
+  - 20MM KWK 30 [Sd.Kfz.121 Luchs]
+  - 37MM CANNON [M3 Stuart Honey]
+  - 37MM CANNON [Stuart M5A1]
+  - 45MM M1937 [T70]
+  - 50mm KwK 39/1 [Sd.Kfz.234 Puma]
+  - 57MM CANNON [M1 57mm]
+  - 57MM CANNON [ZiS-2]
+  - 75MM CANNON [PAK 40]
+  - 75MM CANNON [Sd.Kfz.161 Panzer IV]
+  - 75MM CANNON [Sd.Kfz.171 Panther]
+  - 75MM CANNON [Sherman M4A1]
+  - 75MM CANNON [Sherman M4A3(75)W]
+  - 75MM M3 GUN [Sherman M4A3E2]
+  - 76MM M1 GUN [Sherman M4A3E2(76)]
+  - 76MM ZiS-5 [T34/76]
+  - 88 KWK 36 L/56 [Sd.Kfz.181 Tiger 1]
+  - A.P. Shrapnel Mine Mk II
+  - A.T. Mine G.S. Mk V
+  - BA-10
+  - BAZOOKA
+  - BOMBING RUN
+  - BROWNING M1919
+  - Bazooka
+  - Bedford OYD (Supply)
+  - Bedford OYD (Transport)
+  - Boys Anti-tank Rifle
+  - Bren Gun
+  - COAXIAL BESA
+  - COAXIAL BESA 7.92mm
+  - COAXIAL BESA 7.92mm [Churchill Mk.III]
+  - COAXIAL BESA 7.92mm [Churchill Mk.VII]
+  - COAXIAL BESA [Cromwell]
+  - COAXIAL BESA [Crusader Mk.III]
+  - COAXIAL BESA [Daimler]
+  - COAXIAL BESA [Tetrarch]
+  - COAXIAL DT
+  - COAXIAL DT [BA-10]
+  - COAXIAL DT [IS-1]
+  - COAXIAL DT [T34/76]
+  - COAXIAL DT [T70]
+  - COAXIAL M1919
+  - COAXIAL M1919 [Firefly]
+  - COAXIAL M1919 [M3 Stuart Honey]
+  - COAXIAL M1919 [M8 Greyhound]
+  - COAXIAL M1919 [Sherman M4A1]
+  - COAXIAL M1919 [Sherman M4A3(75)W]
+  - COAXIAL M1919 [Sherman M4A3E2(76)]
+  - COAXIAL M1919 [Sherman M4A3E2]
+  - COAXIAL M1919 [Stuart M5A1]
+  - COAXIAL MG34
+  - COAXIAL MG34 [Sd.Kfz.121 Luchs]
+  - COAXIAL MG34 [Sd.Kfz.161 Panzer IV]
+  - COAXIAL MG34 [Sd.Kfz.171 Panther]
+  - COAXIAL MG34 [Sd.Kfz.181 Tiger 1]
+  - COAXIAL MG34 [Sd.Kfz.234 Puma]
+  - COLT M1911
+  - Churchill Mk.III
+  - Churchill Mk.VII
+  - Cromwell
+  - Crusader Mk.III
+  - D-5T 85MM [IS-1]
+  - DP-27
+  - Daimler
+  - FELDSPATEN
+  - FG42
+  - FG42 x4
+  - FLAMETHROWER
+  - FLAMMENWERFER 41
+  - FLARE GUN
+  - Fairbairn–Sykes
+  - FireSpot
+  - Firefly
+  - G43
+  - GAZ-67
+  - GEWEHR 43
+  - GMC CCKW 353 (Supply)
+  - GMC CCKW 353 (Transport)
+  - Garand
+  - HULL BESA
+  - HULL BESA 7.92mm
+  - HULL BESA 7.92mm [Churchill Mk.III]
+  - HULL BESA 7.92mm [Churchill Mk.VII]
+  - HULL BESA [Cromwell]
+  - HULL DT
+  - HULL DT [IS-1]
+  - HULL DT [T34/76]
+  - HULL M1919
+  - HULL M1919 [M3 Stuart Honey]
+  - HULL M1919 [Sherman M4A1]
+  - HULL M1919 [Sherman M4A3(75)W]
+  - HULL M1919 [Sherman M4A3E2(76)]
+  - HULL M1919 [Sherman M4A3E2]
+  - HULL M1919 [Stuart M5A1]
+  - HULL MG34
+  - HULL MG34 [Sd.Kfz.161 Panzer IV]
+  - HULL MG34 [Sd.Kfz.171 Panther]
+  - HULL MG34 [Sd.Kfz.181 Tiger 1]
+  - IS-1
+  - Jeep Willys
+  - K
+  - KARABINER 98K
+  - KARABINER 98K x8
+  - Kar98
+  - Kar98_Sniper
+  - Knife_US
+  - Kubelwagen
+  - LUGER P08
+  - Lanchester
+  - Lee-Enfield Pattern 1914
+  - Lee-Enfield Pattern 1914 Sniper
+  - Lee–Enfield Jungle Carbine
+  - Lee–Enfield No.4 Mk I
+  - Lewis Gun
+  - Luger
+  - M1 CARBINE
+  - M1 GARAND
+  - M1903
+  - M1903 SPRINGFIELD
+  - M1911
+  - M1918A2 BAR
+  - M1918A2_BAR
+  - M1919
+  - M1928A1 THOMPSON
+  - M1A1
+  - M1A1 AT MINE
+  - M1A1 THOMPSON
+  - M1_Carbine
+  - M2
+  - M2 AP MINE
+  - M2 Browning
+  - M2 Browning [M3 Half-track]
+  - M2 FLAMETHROWER
+  - M24 STIELHANDGRANATE
+  - M24_Grenade
+  - M3 GREASE GUN
+  - M3 Half-track
+  - M3 KNIFE
+  - M3 Stuart Honey
+  - M43
+  - M43 STIELHANDGRANATE
+  - M6 37mm [M8 Greyhound]
+  - M8 Greyhound
+  - M97 TRENCH GUN
+  - MG 42
+  - MG 42 [Sd.Kfz 251 Half-track]
+  - MG34
+  - MG42
+  - MK2 GRENADE
+  - MK2_Grenade
+  - MOLOTOV
+  - MOSIN NAGANT 1891
+  - MOSIN NAGANT 91/30
+  - MOSIN NAGANT M38
+  - MP40
+  - MPL-50 SPADE
+  - Mills Bomb
+  - NAGANT M1895
+  - No.2 Mk 5 Flare Pistol
+  - No.82 Grenade
+  - None
+  - OQF 57MM [Churchill Mk.III]
+  - OQF 57MM [Crusader Mk.III]
+  - OQF 6 - POUNDER Mk.V [Churchill Mk.III]
+  - OQF 75MM [Churchill Mk.VII]
+  - OQF 75MM [Cromwell]
+  - Opel Blitz (Supply)
+  - Opel Blitz (Transport)
+  - P38
+  - PANZERSCHRECK
+  - PIAT
+  - POMZ AP MINE
+  - PPSH 41
+  - PPSH 41 W/DRUM
+  - PRECISION STRIKE
+  - PTRS-41
+  - Panzershreck
+  - QF 17-POUNDER [Firefly]
+  - QF 2-POUNDER [Daimler]
+  - QF 2-POUNDER [Tetrarch]
+  - QF 25-POUNDER [QF 25-Pounder]
+  - QF 6-POUNDER [QF 6-Pounder]
+  - QF 75MM [Cromwell]
+  - RG-42 GRENADE
+  - Rifle No.4 Mk I
+  - Rifle No.4 Mk I Sniper
+  - Rifle No.5 Mk I
+  - S-MINE
+  - SATCHEL
+  - SATCHEL CHARGE
+  - SCOPED MOSIN NAGANT 91/30
+  - SCOPED SVT40
+  - SMG_M3_GreaseGun
+  - SMLE No.1 Mk III
+  - SMine
+  - STG44
+  - STRAFING RUN
+  - SVT40
+  - Satchel
+  - Satchel_3KG
+  - Satchel_M37
+  - Sd.Kfz 251 Half-track
+  - Sd.Kfz.121 Luchs
+  - Sd.Kfz.161 Panzer IV
+  - Sd.Kfz.171 Panther
+  - Sd.Kfz.181 Tiger 1
+  - Sd.Kfz.234 Puma
+  - Sherman M4A1
+  - Sherman M4A3(75)W
+  - Sherman M4A3E2
+  - Sherman M4A3E2(76)
+  - Spade_GER
+  - Sten Gun
+  - Sten Gun Mk.II
+  - Sten Gun Mk.V
+  - Stuart M5A1
+  - T34/76
+  - T70
+  - TELLERMINE 43
+  - TM-35 AT MINE
+  - TOKAREV TT33
+  - Tellermine43
+  - Tetrarch
+  - Thompson
+  - TrenchGun
+  - UNKNOWN
+  - Unknown
+  - WALTHER P38
+  - Webley MK VI
+  - ZIS-5 (Supply)
+  - ZIS-5 (Transport)
