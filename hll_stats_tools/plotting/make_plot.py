@@ -239,11 +239,11 @@ def plot_scatter_metric_dates(
 ):
 
     # drop zero games
-    print(f"Before filter: {len(df)} rows")
-    print(f"Before Filtered out: {df.index.min()} → {df.index.max()}")
+    # print(f"Before filter: {len(df)} rows")
+    # print(f"Before Filtered out: {df.index.min()} → {df.index.max()}")
     df = df[df[metric] > 0]
-    print(f"After filter: {len(df)} rows")
-    print(f"Filtered out: {df.index.min()} → {df.index.max()}")
+    # print(f"After filter: {len(df)} rows")
+    # print(f"Filtered out: {df.index.min()} → {df.index.max()}")
 
     # prepare for plotting
     dates = df.index
@@ -294,7 +294,7 @@ def plot_scatter_metric_dates(
     ax.set_ylabel(metric_name)
     ax.legend()
 
-    print(f"Plot time range: {df.index.min()} → {df.index.max()}")
+    # print(f"Plot time range: {df.index.min()} → {df.index.max()}")
     plt.tight_layout()
 
     if not namefile and out_folder:
