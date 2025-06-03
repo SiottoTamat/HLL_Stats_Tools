@@ -99,7 +99,11 @@ def update_player(session, ev, id_key, name_key):
 
 
 def create_player_analysis(
-    session: Session, stats: dict, game: Game, player: Player, test: bool = False
+    session: Session,
+    stats: dict,
+    game: Game,
+    player: Player,
+    test: bool = False,
 ) -> PlayerAnalysis:
     """
     Create and persist a PlayerAnalysis record based on computed stats.
@@ -239,16 +243,20 @@ def build_event_record(ev, ev_time, active_games):
         "content": ev.get("content"),
         "server": srv,
         "weapon": ev.get("weapon"),
-        "game_key": active_games[srv].game_key if srv in active_games else None,
+        "game_key": (
+            active_games[srv].game_key if srv in active_games else None
+        ),
     }
 
 
 def process_event_file(data, session, last_nums, active_games):
     """
-    Processes all events in a single parsed JSON file.
-    Returns a list of event mappings to be inserted.
+    Processes one JSON file’s events. Returns:
+      • records: a list of dicts (each dict → one Event row to be inserted),
+      • ended_keys: a set of game_key strings where we saw 'MATCH ENDED'.
     """
     records = []
+    event_keys = set()
 
     for ev in sorted(data, key=lambda r: r["event_time"]):
         update_player(session, ev, "player1_id", "player1_name")
@@ -258,7 +266,9 @@ def process_event_file(data, session, last_nums, active_games):
         ev_type = ev["type"]
         srv = ev.get("server")
 
-        if srv in active_games and "THANK YOU FOR SEEDING" in (ev.get("content") or ""):
+        if srv in active_games and "THANK YOU FOR SEEDING" in (
+            ev.get("content") or ""
+        ):
             active_games[srv].seeding = True
             session.add(active_games[srv])
 
@@ -271,17 +281,18 @@ def process_event_file(data, session, last_nums, active_games):
         elif ev_type == "MATCH ENDED" and srv in active_games:
             game = active_games[srv]
             close_match(ev, game, ev_time)
+            event_keys.add(game.game_key)
             session.add(game)
-            analysis = create_analysis(session, game)
-            if analysis:
-                session.add(analysis)
-            else:
-                logger.debug(
-                    "Skipped analysis for game %s (ended=%s, seeding=%s)",
-                    game.game_key,
-                    game.ended,
-                    game.seeding,
-                )
+            # analysis = create_analysis(session, game)
+            # if analysis:
+            #     session.add(analysis)
+            # else:
+            #     logger.debug(
+            #         "Skipped analysis for game %s (ended=%s, seeding=%s)",
+            #         game.game_key,
+            #         game.ended,
+            #         game.seeding,
+            #     )
 
         records.append(build_event_record(ev, ev_time, active_games))
 
@@ -296,7 +307,7 @@ def process_event_file(data, session, last_nums, active_games):
                     )
                     session.execute(stmt)
 
-    return records
+    return records, event_keys
 
 
 def ingest_batch(
@@ -304,6 +315,7 @@ def ingest_batch(
 ):  # noqa: C901
     mappings = []
     to_mark = []
+    ended_games_in_batch = set()
 
     for path in file_paths:
         fname = path.name
@@ -314,13 +326,16 @@ def ingest_batch(
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
 
-        records = process_event_file(data, session, last_nums, active_games)
+        records, event_keys = process_event_file(
+            data, session, last_nums, active_games
+        )
         mappings.extend(records)
+        ended_games_in_batch.update(event_keys)
         to_mark.append(fname)
 
     if not mappings:
         return
-
+    # --- Bulk‐insert all new Event rows into the events table at once ---
     cols = len(mappings[0])
     max_rows = max(1, SQLITE_MAX_VARS // cols)
     for i in range(0, len(mappings), max_rows):
@@ -333,10 +348,13 @@ def ingest_batch(
         session.add(ProcessedFile(filename=fname))
         if verbose:
             logger.info("Marked as processed: %s", fname)
-
+    session.commit()
     logger.info(
-        "Batch ingested: %d files, %d events queued.", len(to_mark), len(mappings)
+        "Game creation. Batch ingested: %d files, %d events queued.",
+        len(to_mark),
+        len(mappings),
     )
+    return ended_games_in_batch
 
 
 def run_sql_pipeline():
@@ -351,7 +369,9 @@ def run_sql_pipeline():
     force = os.getenv("FORCE_RESET", "").lower() in ("1", "true", "yes")
     logger.info(">>> FORCE_RESET = %r, using database %r", force, sql_database)
     if force:
-        logger.warning("FORCE_RESET is set — this will drop all tables and indexes.")
+        logger.warning(
+            "FORCE_RESET is set — this will drop all tables and indexes."
+        )
         confirm = input("Are you sure? [y/N] ").strip().lower()
         if confirm not in ("y", "yes"):
             logger.info("Aborting.")
@@ -375,16 +395,17 @@ def run_sql_pipeline():
 
     # 4) Prepare a single session for all batches
     SessionLocal = sessionmaker(bind=engine, autoflush=False)
-    session = SessionLocal()
+    ingest_session = SessionLocal()
 
     # Initialize per-server counters and open games
     last_nums = dict(
-        session.query(Game.server, func.max(Game.game_number))
+        ingest_session.query(Game.server, func.max(Game.game_number))
         .group_by(Game.server)
         .all()
     )
     active_games = {
-        g.server: g for g in session.query(Game).filter(Game.ended == false()).all()
+        g.server: g
+        for g in ingest_session.query(Game).filter(Game.ended == false()).all()
     }
     logger.info("Start ingest")
     # 5) Batch‐process your JSON files
@@ -392,8 +413,21 @@ def run_sql_pipeline():
     for idx in range(0, len(all_files), BATCH_SIZE):
         batch = all_files[idx : idx + BATCH_SIZE]
 
-        ingest_batch(batch, session, last_nums, active_games, verbose=True)
-        session.commit()
+        ended_keys = ingest_batch(
+            batch, ingest_session, last_nums, active_games, verbose=True
+        )
+        # ingest_session.commit()
+        analysis_session = SessionLocal()
+        for gk in ended_keys:
+            game = analysis_session.query(Game).filter_by(game_key=gk).one()
+
+            # Skip if analysis already exists (idempotency)
+            if not game.analyses:
+                analysis = create_analysis(analysis_session, game)
+                if analysis:
+                    analysis_session.add(analysis)
+        analysis_session.commit()
+        analysis_session.close()
 
         logger.info(
             "Committed batch %d of %d",
@@ -402,7 +436,7 @@ def run_sql_pipeline():
         )
 
     # 6) Tear down
-    session.close()
+    ingest_session.close()
     logger.info("All done.")
 
 

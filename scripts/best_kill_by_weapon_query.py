@@ -1,15 +1,12 @@
 import json
 import os
-import sys
 from collections import namedtuple
-from pathlib import Path
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-from hll_stats_tools.sql_pipeline.models import Game, Player, PlayerAnalysis
+from hll_stats_tools.sql_pipeline.models import PlayerAnalysis
 
 load_dotenv(".env")
 sql_database = os.getenv("sql_database")
@@ -47,7 +44,9 @@ data = json.load(open("event_weapons.json"))
 # }
 
 weapons_of_interest = [
-    key for key, values in data.items() if values["common_name"] == "grease_gun"
+    key
+    for key, values in data.items()
+    if values["common_name"] == "grease_gun"
 ]
 # weapons_of_interest = [
 #     key for key, values in data.items() if values["group"] == "automatic"

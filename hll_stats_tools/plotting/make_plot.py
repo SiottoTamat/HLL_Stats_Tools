@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 import matplotlib.dates as mdates
@@ -43,7 +43,9 @@ def plot_player_data(
 
     if constant_multiplier:
         # df["value"] = df["value"] * constant_multiplier
-        df.loc[df["metric"] == "list Apolo kpm", "value"] *= constant_multiplier
+        df.loc[
+            df["metric"] == "list Apolo kpm", "value"
+        ] *= constant_multiplier
 
     # Apply date range filtering
     if lim_start is not None:
@@ -56,7 +58,9 @@ def plot_player_data(
     ).dt.tz_localize(None)
     df = df.dropna(subset=["date"])
 
-    df["group"] = df["date"].dt.to_period(conversions[timeframe_group_by]).dt.start_time
+    df["group"] = (
+        df["date"].dt.to_period(conversions[timeframe_group_by]).dt.start_time
+    )
     grouped = df.groupby(["group", "metric"])["value"].mean().reset_index()
 
     pivot_df = grouped.pivot(index="group", columns="metric", values="value")
@@ -85,7 +89,9 @@ def plot_player_data(
             label=[f"{col} (avg)" for col in rolling_df.columns],
         )
 
-    plt.title(f"Player: {player_name} - {timeframe_group_by.capitalize()}ly Metrics")
+    plt.title(
+        f"Player: {player_name} - {timeframe_group_by.capitalize()}ly Metrics"
+    )
     plt.xlabel("Date")
     plt.ylabel("Value")
     plt.grid(True)
@@ -233,7 +239,11 @@ def plot_scatter_metric_dates(
 ):
 
     # drop zero games
+    print(f"Before filter: {len(df)} rows")
+    print(f"Before Filtered out: {df.index.min()} → {df.index.max()}")
     df = df[df[metric] > 0]
+    print(f"After filter: {len(df)} rows")
+    print(f"Filtered out: {df.index.min()} → {df.index.max()}")
 
     # prepare for plotting
     dates = df.index
@@ -277,15 +287,22 @@ def plot_scatter_metric_dates(
     if player_name:
         player_tag = f"{player_name}_"
 
-    ax.set_title(f"{player_tag}{metric_name} scatter by Game Date (LOWESS Smoothed)")
+    ax.set_title(
+        f"{player_tag}{metric_name} scatter by Game Date (LOWESS Smoothed)"
+    )
     ax.set_xlabel("Game Date")
     ax.set_ylabel(metric_name)
     ax.legend()
 
+    print(f"Plot time range: {df.index.min()} → {df.index.max()}")
     plt.tight_layout()
 
     if not namefile and out_folder:
-        namefile = Path(out_folder) / Path(f"{player_tag}{metric}_scatter.png")
+        now = datetime.now().strftime("%Y%m%d")
+
+        namefile = Path(out_folder) / Path(
+            f"{now}_{player_tag}{metric}_scatter.png"
+        )
 
     if out_folder:
         plt.savefig(namefile, bbox_inches="tight")
